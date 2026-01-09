@@ -1,16 +1,31 @@
 package lu.cnfpcfullstackdev.tfl_api.entity;
  
 import java.time.LocalDateTime;
- 
+
+import jakarta.persistence.*;
+
+
+@Entity
 public class TflListing {
     //Data fields
+    @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
+
     private String title;
     private String description;
     private Integer quantity;
     private LocalDateTime expiryDate;
     private String pickupTime;
+
+    @Enumerated(EnumType.STRING)
     private ListingStatus status;
+
+    // Relationship to TflUser (Business)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name= "business_id")  //created the FK
+    private TflUser business;
+
 
     // Empty constructor (required for JSON serialization)
     public TflListing() {
@@ -83,4 +98,13 @@ public class TflListing {
                 ", status=" + status +
                 '}';
     }
+
+    public TflUser getBusiness() {
+        return this.business;
+    }
+
+    public void setBusiness(TflUser business) {
+        this.business = business;
+    }
+
 }

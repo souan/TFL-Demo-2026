@@ -8,6 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+import lu.cnfpcfullstackdev.tfl_api.dto.request.CreateListingRequestDTO;
+import lu.cnfpcfullstackdev.tfl_api.dto.request.UpdateListingRequestDTO;
+import lu.cnfpcfullstackdev.tfl_api.dto.response.ListingResponseDTO;
 import lu.cnfpcfullstackdev.tfl_api.entity.TflListing;
 import lu.cnfpcfullstackdev.tfl_api.service.TflListingService;
 
@@ -20,10 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
-
-
-
-
 @RestController
 @RequestMapping("/api/listings")
 public class TflListingController {
@@ -33,33 +33,39 @@ public class TflListingController {
 
     // Get All listings
     @GetMapping
-    public List<TflListing> getAllListings() {
+    public List<ListingResponseDTO> getAllListings() {
         return listingService.getAllListings();
     }
 
 
     // Get listing by ID
     @GetMapping("/{id}")
-    public TflListing getListingById(@PathVariable Long id) {
+    public ListingResponseDTO getListingById(@PathVariable Long id) {
         return listingService.getListingById(id);
     }
 
     //POST - Create new Listing
     @PostMapping
-    public ResponseEntity<TflListing> createListing(@RequestBody TflListing listing ) {
-        TflListing created = listingService.createListing(listing);
+    public ResponseEntity<ListingResponseDTO> createListing(
+                            @Valid @RequestBody CreateListingRequestDTO dto) {
+
+        ListingResponseDTO created = listingService.createListing(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+
     }
 
     //GET - Search by status
     @GetMapping("/search")
-    public List<TflListing> getListingByStatus (@RequestParam String status) {
+    public List<ListingResponseDTO> getListingByStatus (@RequestParam String status) {
         return listingService.searchByStatus(status);
     }
 
     // PUT - Update listing
     @PutMapping("/{id}")
-    public TflListing updateListing(@PathVariable Long id, @RequestBody TflListing updatedListing) {
+    public ListingResponseDTO updateListing(
+        @PathVariable Long id, 
+        @Valid @RequestBody UpdateListingRequestDTO updatedListing) {
+
         return listingService.updateListing(id, updatedListing);
     }
     
