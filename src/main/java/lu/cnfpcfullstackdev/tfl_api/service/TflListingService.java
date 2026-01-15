@@ -43,15 +43,15 @@ public class TflListingService {
     }
     
     // Create new listing
-    public ListingResponseDTO createListing(CreateListingRequestDTO dto) {
+    public ListingResponseDTO createListing(CreateListingRequestDTO dto, Long businessId) {
 
         //Find corresponding business TflUser
-        TflUser business = userRepository.findById(dto.getBusinessId())
-                            .orElseThrow(() -> new ResourceNotFoundException("TflUser (Business)", dto.getBusinessId()));
-        
+        TflUser business = userRepository.findById(businessId)
+                            .orElseThrow(() -> new ResourceNotFoundException("TflUser (Business)", businessId));
+
         // Verify it's actually a business
         if(business.getRole() != UserRole.BUSINESS){
-            throw new RuntimeException("User with id " + dto.getBusinessId() + "is not a business");
+            throw new RuntimeException("User with id " + businessId + " is not a business");
         }
 
         //Convert DTO to entity
@@ -90,23 +90,33 @@ public class TflListingService {
     }
     
     // PUT - receives RequestDTO, returns ResponseDTO
-    public ListingResponseDTO updateListing(Long id, UpdateListingRequestDTO dto) {
+    public ListingResponseDTO updateListing(Long id, UpdateListingRequestDTO dto, Long businessId) {
         TflListing listing = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Listing", id));
-        
+
+        // Authorization: Verify the listing belongs to the authenticated business
+        if (!listing.getBusiness().getId().equals(businessId)) {
+            throw new RuntimeException("You are not authorized to update this listing");
+        }
+
         // Update entity from DTO
         ListingMapper.updateEntity(listing, dto);
-        
+
         // Save and return
         TflListing updated = repository.save(listing);
         return ListingMapper.toResponseDTO(updated);
     }
     
     // Delete listing
-    public void deleteListing(Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Listing", id);
+    public void deleteListing(Long id, Long businessId) {
+        TflListing listing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Listing", id));
+
+        // Authorization: Verify the listing belongs to the authenticated business
+        if (!listing.getBusiness().getId().equals(businessId)) {
+            throw new RuntimeException("You are not authorized to delete this listing");
         }
+
         repository.deleteById(id);
     }
 }

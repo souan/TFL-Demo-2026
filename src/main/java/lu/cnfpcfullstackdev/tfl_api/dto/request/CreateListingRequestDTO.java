@@ -24,15 +24,13 @@ public class CreateListingRequestDTO {
     private LocalDateTime expiryDate;
 
     @NotBlank(message = "Pickup time is required")
-    @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]-([0-1]?[0-9]|2[0-3]):[0-5][0-9]$", 
+    @Pattern(regexp = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]-([0-1]?[0-9]|2[0-3]):[0-5][0-9]$",
              message = "Pickup time must be in format HH:MM-HH:MM (e.g., 17:00-18:00)")
     private String pickupTime;
-    
-    @NotNull(message = "Business ID is required")
-    private Long businessId;
 
     // No 'id' - database generates it
     // No 'status' - service logic sets it
+    // No 'businessId' - extracted from JWT token via UserPrincipal
     
     // Empty constructor
     public CreateListingRequestDTO() {
@@ -78,14 +76,6 @@ public class CreateListingRequestDTO {
 
     public void setPickupTime(String pickupTime) {
         this.pickupTime = pickupTime;
-    }
-
-    public Long getBusinessId() {
-        return this.businessId;
-    }
-
-    public void setBusinessId(Long businessId) {
-        this.businessId = businessId;
     }
 
 }
